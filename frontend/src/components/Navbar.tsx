@@ -1,11 +1,19 @@
 import React, { useState } from 'react';
 import { Menu, X, Home, Search, Trophy, Mail, CheckCircle, PlusCircle, LogIn, LogOut, Settings } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../contexts/AuthContext';
 import NavLink from './navigation/NavLink';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { isAuthenticated, logout } = useAuthContext();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    setIsOpen(false);
+    navigate('/login');
+  };
 
   const commonNavItems = [
     { name: 'Home', icon: <Home className="w-5 h-5" />, path: '/' },
@@ -27,7 +35,9 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-2">
-            <span className="text-xl font-bold text-primary">DarkApp</span>
+            <NavLink href="/" icon={<Home className="w-6 h-6" />}>
+              DarkApp
+            </NavLink>
           </div>
 
           {/* Desktop Navigation */}
@@ -43,7 +53,7 @@ const Navbar = () => {
               </NavLink>
             ) : (
               <button
-                onClick={logout}
+                onClick={handleLogout}
                 className="nav-link flex items-center space-x-2 text-accent"
               >
                 <LogOut className="w-5 h-5" />
@@ -90,10 +100,7 @@ const Navbar = () => {
               </NavLink>
             ) : (
               <button
-                onClick={() => {
-                  setIsOpen(false);
-                  logout();
-                }}
+                onClick={handleLogout}
                 className="nav-link flex items-center space-x-2 text-accent w-full"
               >
                 <LogOut className="w-5 h-5" />
