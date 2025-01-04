@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { fetchMembers } from '../services/api.service';
 import { Member } from '../types/member';
 import { Trophy } from 'lucide-react';
@@ -7,12 +8,12 @@ const Leaderboard = () => {
   const [members, setMembers] = useState<Member[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadMembers = async () => {
       try {
         const data = await fetchMembers();
-        // Sort members by points in descending order
         const sortedMembers = data.sort((a, b) => b.points - a.points);
         setMembers(sortedMembers);
       } catch (err) {
@@ -24,6 +25,10 @@ const Leaderboard = () => {
 
     loadMembers();
   }, []);
+
+  const handleMemberClick = (studynr: string) => {
+    navigate(`/search?studynr=${studynr}`);
+  };
 
   if (isLoading) {
     return (
@@ -62,9 +67,11 @@ const Leaderboard = () => {
             {members.map((member, index) => (
               <tr 
                 key={member.studynr}
-                className={`${
-                  index < 3 ? 'bg-primary/5' : ''
-                } hover:bg-card/50 transition-colors`}
+                onClick={() => handleMemberClick(member.studynr)}
+                className={`
+                  ${index < 3 ? 'bg-primary/5' : ''}
+                  hover:bg-card/50 transition-colors cursor-pointer
+                `}
               >
                 <td className="px-6 py-4">
                   <span className={`

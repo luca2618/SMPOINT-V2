@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Search as SearchIcon } from 'lucide-react';
 import SearchForm from '../components/search/SearchForm';
 import ActivityTable from '../components/search/ActivityTable';
@@ -7,6 +8,7 @@ import { Member } from '../types/member';
 import { Activity } from '../types/activity';
 
 const Search = () => {
+  const [searchParams] = useSearchParams();
   const [member, setMember] = useState<Member | null>(null);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -33,6 +35,14 @@ const Search = () => {
       setIsLoading(false);
     }
   };
+
+  // Handle search from URL params
+  useEffect(() => {
+    const studynr = searchParams.get('studynr');
+    if (studynr) {
+      handleSearch(studynr);
+    }
+  }, [searchParams]);
 
   return (
     <div className="space-y-8">
