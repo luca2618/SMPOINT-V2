@@ -16,5 +16,9 @@ export const getMemberActivities = async (studynr: string): Promise<Activity[]> 
     throw new Error('Failed to fetch activities');
   }
   const activities: Activity[] = await response.json();
-  return activities.filter(activity => activity.studynr === studynr);
+  
+  // Filter activities for the specific student and sort by date in descending order
+  return activities
+    .filter(activity => activity.studynr === studynr)
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 };

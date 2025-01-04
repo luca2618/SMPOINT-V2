@@ -10,6 +10,7 @@ from .models import Member, Activity, ActivityType
 from .serializers import MemberSerializer, ActivitySerializer, ActivityTypeSerializer
 
 
+
 class ActivityTypeViewSet(viewsets.ModelViewSet):
     queryset = ActivityType.objects.all()
     serializer_class = ActivityTypeSerializer
@@ -18,7 +19,7 @@ class ActivityTypeViewSet(viewsets.ModelViewSet):
         """
         Override get_permissions to use different permissions based on the HTTP method.
         """
-        if self.action == 'list' or self.action == 'retrieve':
+        if self.action in ['list', 'retrieve']:
             # Allow any user (unauthenticated users) to access GET requests
             permission_classes = [AllowAny]
         else:
@@ -33,7 +34,7 @@ class MemberViewSet(viewsets.ModelViewSet):
         """
         Override get_permissions to use different permissions based on the HTTP method.
         """
-        if self.action == 'list' or self.action == 'retrieve':
+        if self.action in ['list', 'retrieve']:
             # Allow any user (unauthenticated users) to access GET requests
             permission_classes = [AllowAny]
         else:
@@ -46,10 +47,11 @@ class ActivityViewSet(viewsets.ModelViewSet):
     queryset = Activity.objects.all()
     serializer_class = ActivitySerializer
     permission_classes = [IsAuthenticated]
+
     def perform_create(self, serializer):
-        # Check if the user is an admin
-        if self.request.user.is_staff:
-            # If the user is an admin, set approved to True
+        # Check if the user is authenticated
+        if self.request.user.is_authenticated:
+            # If the user is authenticated, set approved to True
             serializer.save(approved=True)
         else:
             # Otherwise, set approved to False
@@ -59,12 +61,12 @@ class ActivityViewSet(viewsets.ModelViewSet):
         """
         Override get_permissions to use different permissions based on the HTTP method.
         """
-        if self.action == 'list' or self.action == 'retrieve':
-            # Allow any user (unauthenticated users) to access GET requests
+        if self.action in ['list', 'retrieve', 'create']:
+            # Allow any user (unauthenticated users) to access GET and POST requests
             permission_classes = [AllowAny]
         else:
-            # Require authentication for POST, PUT, DELETE
-            permission_classes = [AllowAny]
+            # Require authentication for PUT, DELETE
+            permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
 
 # Require login and admin privileges
