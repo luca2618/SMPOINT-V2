@@ -14,3 +14,16 @@ export const fetchMembers = async (): Promise<Member[]> => {
     throw error;
   }
 };
+
+export const fetchActivityTypes = async (): Promise<any[]> => {
+  try {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/activitytypes/`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch activity types');
+    }
+    return response.json();
+  } catch (error) {
+    console.error('Error fetching activity types:', error);
+    throw error;
+  }
+};

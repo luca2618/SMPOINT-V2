@@ -19,13 +19,14 @@ from django.urls import path, include
 from smdatabase import views
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt import views as jwt_views
-from smdatabase.views import MemberViewSet, ActivityViewSet
+from smdatabase.views import MemberViewSet, ActivityViewSet, ActivityTypeViewSet
 #from smdatabase import MemberViewSet
 
 
 router = DefaultRouter()
 router.register(r'members', MemberViewSet)
 router.register(r'activities', ActivityViewSet)
+router.register(r'activitytypes', ActivityTypeViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),

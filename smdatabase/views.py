@@ -6,8 +6,25 @@ from rest_framework.exceptions import NotFound
 from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.http import require_POST
 from rest_framework import viewsets
-from .models import Member, Activity
-from .serializers import MemberSerializer, ActivitySerializer
+from .models import Member, Activity, ActivityType
+from .serializers import MemberSerializer, ActivitySerializer, ActivityTypeSerializer
+
+
+class ActivityTypeViewSet(viewsets.ModelViewSet):
+    queryset = ActivityType.objects.all()
+    serializer_class = ActivityTypeSerializer
+    permission_classes = [IsAuthenticated]
+    def get_permissions(self):
+        """
+        Override get_permissions to use different permissions based on the HTTP method.
+        """
+        if self.action == 'list' or self.action == 'retrieve':
+            # Allow any user (unauthenticated users) to access GET requests
+            permission_classes = [AllowAny]
+        else:
+            # Require authentication for POST, PUT, DELETE
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
 
 class MemberViewSet(viewsets.ModelViewSet):
     queryset = Member.objects.all()
@@ -23,18 +40,7 @@ class MemberViewSet(viewsets.ModelViewSet):
             # Require authentication for POST, PUT, DELETE
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
-    def get_queryset(self):
-        """
-        Override get_queryset to fetch a specific member if a `studynr` parameter is provided.
-        """
-        studynr = self.request.query_params.get('studynr')
-        if studynr:
-            try:
-                return Member.objects.filter(studynr=studynr)
-            except Member.DoesNotExist:
-                raise NotFound(detail="Member not found.")
-        # Default behavior: return all members
-        return super().get_queryset()
+
 
 class ActivityViewSet(viewsets.ModelViewSet):
     queryset = Activity.objects.all()
