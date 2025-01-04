@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --primary: 147 51 234;
+    --secondary: 79 70 229;
+    --accent: 236 72 153;
+    --background: 17 24 39;
+    --foreground: 249 250 251;
+    --muted: 55 65 81;
+    --card: 31 41 55;
+  }
+}
+
+body {
+  @apply bg-background text-foreground;
+}
+
+.nav-link {
+  @apply px-4 py-2 rounded-lg transition-colors duration-200 hover:bg-muted/20;
+}
+
+.nav-link.active {
+  @apply bg-primary/20 text-primary-foreground;
+}

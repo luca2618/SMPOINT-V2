@@ -5,7 +5,7 @@ from django.db.models import Sum
 # Remember date format is YYYY-MM-DD
 
 class Member(models.Model):
-    studynr = models.CharField(max_length=255)  # Student ID
+    studynr = models.CharField(max_length=255, primary_key=True)  # Student ID
     name = models.CharField(max_length=255)  # Name
     email = models.EmailField(max_length=255)  # Email
     points = models.FloatField()  # Points
@@ -41,16 +41,6 @@ class Meeting(models.Model):
         return f"Meeting on {self.date}"  # Return a string representation of the meeting
 
 
-# class Admin(models.Model):
-#     name = models.CharField(max_length=255)  # Admin's name
-#     email = models.EmailField(max_length=255)  # Admin's email
-#     password = models.CharField(max_length=255)  # Admin's password
-#     role = models.CharField(max_length=255)  # Admin's role
-#     date = models.DateField()  # Date the admin was added
-
-#     def __str__(self):
-#         return self.name  # Return admin's name
-
 
 class ActivityType(models.Model):
     activity = models.CharField(max_length=255)  # Activity name
@@ -62,12 +52,14 @@ class ActivityType(models.Model):
 
 
 class Activity(models.Model):
-    studynr = models.CharField(max_length=255)  # Student ID
+    studynr = models.ForeignKey(Member, on_delete=models.CASCADE)  # ForeignKey to Member  # Student ID
     activity = models.CharField(max_length=255)  # Activity name
     points = models.FloatField()
     comment = models.CharField(max_length=255, null=True, blank=True)
     approved = models.BooleanField(default=False)
     date = models.DateField()
+    def __str__(self):
+        return self.activity +" by "+self.studynr.studynr
 
 class Setting(models.Model):
     setting_key = models.CharField(max_length=255, primary_key=True)

@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'smdatabase',
     'rest_framework',
     'rest_framework.authtoken',  # For token authentication, if needed
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -50,7 +51,16 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # Add this line
+    'django.middleware.common.CommonMiddleware',
 ]
+CORS_ALLOW_ALL_ORIGINS = True #This is set to false in production
+## and this is used instead:
+# CORS_ALLOWED_ORIGINS = [
+#     "https://your-frontend-domain.com",
+#     "https://another-frontend.com",
+# ]
+
 
 ROOT_URLCONF = 'smpoint.urls'
 

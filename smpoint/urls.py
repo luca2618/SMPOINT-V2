@@ -31,6 +31,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('update_points/<str:studynr>/', views.update_points, name='update_points'),
     path('add_activity/', views.add_activity, name='add_activity'),
+    path('import/',views.import_data),
     path('api/', include(router.urls)),
     path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
