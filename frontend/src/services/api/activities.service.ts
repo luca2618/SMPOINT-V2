@@ -12,58 +12,17 @@ const getAuthHeaders = () => {
   };
 };
 
-export const addActivity = async (data: any): Promise<void> => {
-  const response = await fetch(`${API_CONFIG.BASE_URL}/api/activities/`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(data),
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to add activity');
-  }
-};
-
-export const approvePendingActivity = async (id: number): Promise<void> => {
-  const response = await fetch(`${API_CONFIG.BASE_URL}/api/activities/${id}/approve`, {
-    method: 'POST',
+export const getPendingActivities = async (): Promise<Activity[]> => {
+  const response = await fetch(`${API_CONFIG.BASE_URL}/api/activities/?approved=False&include_names=true`, {
     headers: getAuthHeaders(),
   });
 
   if (!response.ok) {
-    throw new Error('Failed to approve activity');
+    throw new Error('Failed to fetch pending activities');
   }
-};
 
-export const disapprovePendingActivity = async (id: number): Promise<void> => {
-  const response = await fetch(`${API_CONFIG.BASE_URL}/api/activities/${id}/disapprove`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to disapprove activity');
-  }
-};
-
-export const approveAllActivities = async (): Promise<void> => {
-  const response = await fetch(`${API_CONFIG.BASE_URL}/api/activities/approve-all`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to approve all activities');
-  }
-};
-
-export const disapproveAllActivities = async (): Promise<void> => {
-  const response = await fetch(`${API_CONFIG.BASE_URL}/api/activities/disapprove-all`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to disapprove all activities');
-  }
+  const activities = await response.json();
+  return activities.sort((a: Activity, b: Activity) => 
+    new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
 };

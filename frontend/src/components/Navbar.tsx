@@ -3,6 +3,7 @@ import { Menu, X, Home, Search, Trophy, Mail, CheckCircle, PlusCircle, LogIn, Lo
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../contexts/AuthContext';
 import NavLink from './navigation/NavLink';
+import Logo from './Logo';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -34,19 +35,22 @@ const Navbar = () => {
     <nav className="bg-card shadow-lg">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
-          <div className="flex items-center space-x-2">
-            <NavLink href="/" icon={<Home className="w-6 h-6" />}>
-              DarkApp
-            </NavLink>
+          <div className="flex items-center space-x-4">
+            {/* Logo */}
+            <Logo />
+
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-1">
+              {navItems.map((item) => (
+                <NavLink key={item.name} href={item.path} icon={item.icon}>
+                  {item.name}
+                </NavLink>
+              ))}
+            </div>
           </div>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-4">
-            {navItems.map((item) => (
-              <NavLink key={item.name} href={item.path} icon={item.icon}>
-                {item.name}
-              </NavLink>
-            ))}
+          {/* Login/Logout button */}
+          <div className="hidden md:flex items-center">
             {!isAuthenticated ? (
               <NavLink href="/login" icon={<LogIn className="w-5 h-5" />}>
                 Login

@@ -6,11 +6,12 @@ interface NavLinkProps {
   icon: React.ReactNode;
   children: React.ReactNode;
   onClick?: () => void;
+  noActiveState?: boolean;
 }
 
-const NavLink: React.FC<NavLinkProps> = ({ href, icon, children, onClick }) => {
+const NavLink: React.FC<NavLinkProps> = ({ href, icon, children, onClick, noActiveState }) => {
   const location = useLocation();
-  const isActive = location.pathname === href;
+  const isActive = !noActiveState && location.pathname === href;
 
   return (
     <Link

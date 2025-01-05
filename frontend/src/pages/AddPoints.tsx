@@ -3,7 +3,14 @@ import { useAuthContext } from '../contexts/AuthContext';
 import AddPointForm from '../components/forms/AddPointForm';
 import PendingActivitiesTable from '../components/admin/PendingActivitiesTable';
 import { fetchActivityTypes, fetchMembers } from '../services/api.service';
-import { addActivity, approvePendingActivity, disapprovePendingActivity, approveAllActivities, disapproveAllActivities } from '../services/api/activities.service';
+import { 
+  addActivity, 
+  getPendingActivities,
+  approvePendingActivity, 
+  disapprovePendingActivity, 
+  approveAllActivities, 
+  disapproveAllActivities 
+} from '../services/api/activities.service';
 import { ActivityType, Activity } from '../types/activity';
 import { Member } from '../types/member';
 
@@ -14,6 +21,15 @@ const AddPoints = () => {
   const [pendingActivities, setPendingActivities] = useState<Activity[]>([]);
   const [error, setError] = useState<string | null>(null);
 
+  const loadPendingActivities = async () => {
+    try {
+      const activities = await getPendingActivities();
+      setPendingActivities(activities);
+    } catch (err) {
+      setError('Failed to load pending activities');
+    }
+  };
+
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -23,19 +39,22 @@ const AddPoints = () => {
         ]);
         setActivityTypes(typesData);
         setMembers(membersData);
+        
+        if (isAuthenticated) {
+          await loadPendingActivities();
+        }
       } catch (err) {
         setError('Failed to load data');
       }
     };
     loadData();
-  }, []);
+  }, [isAuthenticated]);
 
   const handleSubmit = async (data: any) => {
     try {
       await addActivity(data);
-      // Refresh pending activities if user is admin
       if (isAuthenticated) {
-        // Fetch updated pending activities
+        await loadPendingActivities();
       }
     } catch (err) {
       setError('Failed to add activity');
@@ -45,7 +64,7 @@ const AddPoints = () => {
   const handleApprove = async (id: number) => {
     try {
       await approvePendingActivity(id);
-      setPendingActivities(prev => prev.filter(activity => activity.id !== id));
+      await loadPendingActivities();
     } catch (err) {
       setError('Failed to approve activity');
     }
@@ -54,7 +73,7 @@ const AddPoints = () => {
   const handleDisapprove = async (id: number) => {
     try {
       await disapprovePendingActivity(id);
-      setPendingActivities(prev => prev.filter(activity => activity.id !== id));
+      await loadPendingActivities();
     } catch (err) {
       setError('Failed to disapprove activity');
     }

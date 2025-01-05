@@ -68,6 +68,15 @@ class ActivityViewSet(viewsets.ModelViewSet):
             # Require authentication for PUT, DELETE
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
+    def get_queryset(self):
+        """
+        Optionally restricts the returned activities to approved ones.
+        """
+        queryset = Activity.objects.all()
+        approved = self.request.query_params.get('approved', None)
+        if approved is not None:
+            queryset = queryset.filter(approved=(approved.lower() == 'true'))
+        return queryset
 
 # Require login and admin privileges
 @login_required

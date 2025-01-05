@@ -43,6 +43,7 @@ const PendingActivitiesTable: React.FC<PendingActivitiesTableProps> = ({
           <thead>
             <tr className="bg-card">
               <th className="px-4 py-2 text-left">Name</th>
+              <th className="px-4 py-2 text-left">Study Nr</th>
               <th className="px-4 py-2 text-left">Activity</th>
               <th className="px-4 py-2 text-left">Date</th>
               <th className="px-4 py-2 text-left">Points</th>
@@ -54,7 +55,8 @@ const PendingActivitiesTable: React.FC<PendingActivitiesTableProps> = ({
           <tbody className="divide-y divide-muted/20">
             {activities.map((activity) => (
               <tr key={activity.id} className="hover:bg-card/50">
-                <td className="px-4 py-2">{activity.name}</td>
+                <td className="px-4 py-2 font-medium">{activity.name}</td>
+                <td className="px-4 py-2 text-muted">{activity.studynr}</td>
                 <td className="px-4 py-2">{activity.activity}</td>
                 <td className="px-4 py-2">{new Date(activity.date).toLocaleDateString()}</td>
                 <td className="px-4 py-2">{activity.points}</td>
@@ -75,12 +77,14 @@ const PendingActivitiesTable: React.FC<PendingActivitiesTableProps> = ({
                     <button
                       onClick={() => onApprove(activity.id)}
                       className="p-1 text-green-500 hover:bg-green-500/20 rounded"
+                      title="Approve"
                     >
                       <Check className="w-5 h-5" />
                     </button>
                     <button
                       onClick={() => onDisapprove(activity.id)}
                       className="p-1 text-red-500 hover:bg-red-500/20 rounded"
+                      title="Disapprove"
                     >
                       <X className="w-5 h-5" />
                     </button>
