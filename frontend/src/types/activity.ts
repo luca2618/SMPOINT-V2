@@ -7,7 +7,6 @@ export interface Activity {
   comment: string;
   date: string;
   approved: boolean;
-  standardValue: 'Standard' | 'No standard' | 'Wrong Standard';
 }
 
 export interface ActivityType {

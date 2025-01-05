@@ -1,35 +1,36 @@
-import { Activity } from '../../types/activity';
+import { Activity, ActivityType } from '../../types/activity';
 import { httpClient } from './http.service';
 import { getMembersList } from './members.service';
+import { fetchActivityTypes } from '../api.service';
+import { determineActivityStatus } from '../../components/admin/Status.tsx';
 
 export const addActivity = async (data: any): Promise<void> => {
   await httpClient.post('/api/activities/', data);
 };
 
 export const getPendingActivities = async (): Promise<Activity[]> => {
-  // Fetch both pending activities and members in parallel
-  const [activities, members] = await Promise.all([
+  // Fetch all required data in parallel
+  const [activities, members, activityTypes] = await Promise.all([
     httpClient.get<Activity[]>('/api/activities/?approved=False'),
-    getMembersList()
+    getMembersList(),
+    fetchActivityTypes()
   ]);
   
-  // Add member names to activities
-  const activitiesWithNames = activities.map(activity => ({
+  // Add member names and determine status for activities
+  const activitiesWithDetails = activities.map(activity => ({
     ...activity,
-    name: members.find(m => m.studynr === activity.studynr)?.name || 'Unknown'
+    name: members.find(m => m.studynr === activity.studynr)?.name || 'Unknown',
+    standardValue: determineActivityStatus(activity, activityTypes)
   }));
 
   // Sort by date in descending order
-  return activitiesWithNames.sort((a, b) => 
+  return activitiesWithDetails.sort((a, b) => 
     new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 };
 
 export const approvePendingActivity = async (id: number): Promise<void> => {
-  // First get the activity
   const activity = await httpClient.get<Activity>(`/api/activities/${id}/`);
-
-  // Then update it with approved status
   await httpClient.put(`/api/activities/${id}/`, {
     ...activity,
     approved: true

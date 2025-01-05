@@ -1,6 +1,7 @@
 import React from 'react';
 import { Activity } from '../../types/activity';
 import { Check, X } from 'lucide-react';
+import StatusBadge from './StatusBadge';
 
 interface PendingActivitiesTableProps {
   activities: Activity[];
@@ -20,6 +21,19 @@ const PendingActivitiesTable: React.FC<PendingActivitiesTableProps> = ({
   if (!activities.length) {
     return <p className="text-muted text-center py-4">No pending activities</p>;
   }
+
+  const formatStudyNumber = (studynr: string) => {
+    // Format sXXXXXX to s XXXXXX for better readability
+    return studynr.replace(/^(s)(\d{6})$/i, '$1 $2');
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('da-DK', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    });
+  };
 
   return (
     <div className="space-y-4">
@@ -56,21 +70,15 @@ const PendingActivitiesTable: React.FC<PendingActivitiesTableProps> = ({
             {activities.map((activity) => (
               <tr key={activity.id} className="hover:bg-card/50">
                 <td className="px-4 py-2 font-medium">{activity.name}</td>
-                <td className="px-4 py-2 text-muted">{activity.studynr}</td>
+                <td className="px-4 py-2 font-mono">{formatStudyNumber(activity.studynr)}</td>
                 <td className="px-4 py-2">{activity.activity}</td>
-                <td className="px-4 py-2">{new Date(activity.date).toLocaleDateString()}</td>
+                <td className="px-4 py-2">{formatDate(activity.date)}</td>
                 <td className="px-4 py-2">{activity.points}</td>
-                <td className="px-4 py-2">{activity.comment}</td>
+                <td className="px-4 py-2 max-w-xs truncate" title={activity.comment}>
+                  {activity.comment}
+                </td>
                 <td className="px-4 py-2">
-                  <span className={`px-2 py-1 rounded-full text-sm ${
-                    activity.standardValue === 'Standard' 
-                      ? 'bg-green-500/20 text-green-500'
-                      : activity.standardValue === 'No standard'
-                      ? 'bg-yellow-500/20 text-yellow-500'
-                      : 'bg-red-500/20 text-red-500'
-                  }`}>
-                    {activity.standardValue}
-                  </span>
+                  <StatusBadge status={activity.standardValue} />
                 </td>
                 <td className="px-4 py-2">
                   <div className="flex justify-center gap-2">
