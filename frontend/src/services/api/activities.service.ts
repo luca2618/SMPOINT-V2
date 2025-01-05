@@ -1,6 +1,7 @@
 import { API_CONFIG } from '../../config/api';
 import { Activity } from '../../types/activity';
 import { AuthService } from '../auth.service';
+import { getMembersList } from './members.service';
 
 const getAuthHeaders = () => {
   const tokens = AuthService.getStoredTokens();
@@ -25,28 +26,55 @@ export const addActivity = async (data: any): Promise<void> => {
 };
 
 export const getPendingActivities = async (): Promise<Activity[]> => {
-  const response = await fetch(`${API_CONFIG.BASE_URL}/api/activities/?approved=False&include_names=true`, {
-    headers: getAuthHeaders(),
-  });
+  // Fetch both pending activities and members in parallel
+  const [activitiesResponse, members] = await Promise.all([
+    fetch(`${API_CONFIG.BASE_URL}/api/activities/?approved=False`, {
+      headers: getAuthHeaders(),
+    }),
+    getMembersList()
+  ]);
 
-  if (!response.ok) {
+  if (!activitiesResponse.ok) {
     throw new Error('Failed to fetch pending activities');
   }
 
-  const activities = await response.json();
-  return activities.sort((a: Activity, b: Activity) => 
+  const activities: Activity[] = await activitiesResponse.json();
+  
+  // Add member names to activities
+  const activitiesWithNames = activities.map(activity => ({
+    ...activity,
+    name: members.find(m => m.studynr === activity.studynr)?.name || 'Unknown'
+  }));
+
+  // Sort by date in descending order
+  return activitiesWithNames.sort((a, b) => 
     new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 };
 
 export const approvePendingActivity = async (id: number): Promise<void> => {
+  // First get the activity
   const response = await fetch(`${API_CONFIG.BASE_URL}/api/activities/${id}/`, {
-    method: 'PUT',
     headers: getAuthHeaders(),
-    body: JSON.stringify({ approved: true }),
   });
 
   if (!response.ok) {
+    throw new Error('Failed to fetch activity');
+  }
+
+  const activity = await response.json();
+
+  // Then update it with approved status
+  const updateResponse = await fetch(`${API_CONFIG.BASE_URL}/api/activities/${id}/`, {
+    method: 'PUT',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({
+      ...activity,
+      approved: true
+    }),
+  });
+
+  if (!updateResponse.ok) {
     throw new Error('Failed to approve activity');
   }
 };
