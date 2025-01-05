@@ -1,5 +1,6 @@
 import axios from 'axios';
-import AuthService from './auth-service'; // Adjust the import path as needed
+import { API_CONFIG } from '../../config/api';
+import { AuthService } from '../auth.service';
 
 const axiosInstance = axios.create({
   baseURL: API_CONFIG.BASE_URL,
@@ -24,16 +25,22 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if ((error.response.status === 401 || error.response.status === 403) && !originalRequest._retry) {
+    // If error is 401 and we haven't tried to refresh the token yet
+    if (error.response?.status === 403 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
-        const tokens = AuthService.getTokens(); // Get the current tokens
-        const newAccessToken = await AuthService.refreshToken(tokens.refresh);
+        const tokens = AuthService.getStoredTokens();
+        if (!tokens?.refresh) {
+          throw new Error('No refresh token available');
+        }
 
+        // Try to refresh the token
+        const newAccessToken = await AuthService.refreshToken(tokens.refresh);
+        
         // Update the failed request with the new token
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-
+        
         // Retry the original request
         return axiosInstance(originalRequest);
       } catch (refreshError) {
