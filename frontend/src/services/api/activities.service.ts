@@ -91,8 +91,8 @@ export const disapprovePendingActivity = async (id: number): Promise<void> => {
 };
 
 export const approveAllActivities = async (): Promise<void> => {
-  const response = await fetch(`${API_CONFIG.BASE_URL}/api/activities/approve-all/`, {
-    method: 'PUT',
+  const response = await fetch(`${API_CONFIG.BASE_URL}/api/activities/approve_all/`, {
+    method: 'POST',
     headers: getAuthHeaders(),
   });
 
@@ -102,8 +102,8 @@ export const approveAllActivities = async (): Promise<void> => {
 };
 
 export const disapproveAllActivities = async (): Promise<void> => {
-  const response = await fetch(`${API_CONFIG.BASE_URL}/api/activities/disapprove-all/`, {
-    method: 'DELETE',
+  const response = await fetch(`${API_CONFIG.BASE_URL}/api/activities/disapprove_all/`, {
+    method: 'POST',
     headers: getAuthHeaders(),
   });
 
