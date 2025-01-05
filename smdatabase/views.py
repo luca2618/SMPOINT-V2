@@ -8,6 +8,9 @@ from django.views.decorators.http import require_POST
 from rest_framework import viewsets
 from .models import Member, Activity, ActivityType
 from .serializers import MemberSerializer, ActivitySerializer, ActivityTypeSerializer
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import status
 
 
 
@@ -77,6 +80,22 @@ class ActivityViewSet(viewsets.ModelViewSet):
         if approved is not None:
             queryset = queryset.filter(approved=(approved.lower() == 'true'))
         return queryset
+
+    @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated])
+    def approve_all(self, request):
+        """
+        Custom action to approve all activities.
+        """
+        Activity.objects.update(approved=True)
+        return Response({'status': 'all activities approved'}, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated])
+    def disapprove_all(self, request):
+        """
+        Custom action to delete all activities that are not approved.
+        """
+        Activity.objects.filter(approved=False).delete()
+        return Response({'status': 'all unapproved activities deleted'}, status=status.HTTP_200_OK)
 
 # Require login and admin privileges
 @login_required
