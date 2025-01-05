@@ -1,27 +1,19 @@
-import { API_CONFIG } from '../config/api';
+import { httpClient } from './api/http.service';
 import { Member } from '../types/member';
-import { AuthService } from './auth.service';
+import { ActivityType } from '../types/activity';
 
 export const fetchMembers = async (): Promise<Member[]> => {
   try {
-    const response = await fetch(`${API_CONFIG.BASE_URL}/api/members/`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch members');
-    }
-    return response.json();
+    return await httpClient.get<Member[]>('/api/members/');
   } catch (error) {
     console.error('Error fetching members:', error);
     throw error;
   }
 };
 
-export const fetchActivityTypes = async (): Promise<any[]> => {
+export const fetchActivityTypes = async (): Promise<ActivityType[]> => {
   try {
-    const response = await fetch(`${API_CONFIG.BASE_URL}/api/activitytypes/`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch activity types');
-    }
-    return response.json();
+    return await httpClient.get<ActivityType[]>('/api/activitytypes/');
   } catch (error) {
     console.error('Error fetching activity types:', error);
     throw error;

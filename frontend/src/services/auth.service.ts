@@ -1,3 +1,4 @@
+import { httpClient } from './api/http.service';
 import { API_CONFIG } from '../config/api';
 
 export interface LoginCredentials {
@@ -12,37 +13,16 @@ export interface AuthTokens {
 
 export class AuthService {
   static async login(credentials: LoginCredentials): Promise<AuthTokens> {
-    const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.LOGIN}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(credentials),
-    });
-
-    if (!response.ok) {
-      throw new Error('Login failed');
-    }
-
-    const tokens = await response.json();
+    const tokens = await httpClient.post<AuthTokens>(API_CONFIG.ENDPOINTS.LOGIN, credentials);
     this.storeTokens(tokens);
     return tokens;
   }
 
   static async refreshToken(refreshToken: string): Promise<string> {
-    const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.REFRESH_TOKEN}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ refresh: refreshToken }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Token refresh failed');
-    }
-
-    const { access } = await response.json();
+    const { access } = await httpClient.post<{ access: string }>(
+      API_CONFIG.ENDPOINTS.REFRESH_TOKEN,
+      { refresh: refreshToken }
+    );
     this.storeAccessToken(access);
     return access;
   }
