@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PendingActivitiesTable from '../components/admin/PendingActivitiesTable';
+import LegacyDateSetting from '../components/admin/LegacyDateSetting';
+import { Settings } from 'lucide-react';
 import { 
   getPendingActivities,
   approvePendingActivity, 
@@ -72,15 +74,41 @@ const Admin = () => {
         </div>
       )}
 
-      <div className="bg-card p-6 rounded-lg">
-        <h2 className="text-2xl font-bold mb-6">Pending Activities</h2>
-        <PendingActivitiesTable
-          activities={pendingActivities}
-          onApprove={handleApprove}
-          onDisapprove={handleDisapprove}
-          onApproveAll={handleApproveAll}
-          onDisapproveAll={handleDisapproveAll}
-        />
+      <div className="space-y-6">
+        {/* Pending Activities Section */}
+        <div className="bg-card p-6 rounded-lg">
+          <h2 className="text-2xl font-bold mb-6">Pending Activities</h2>
+          <PendingActivitiesTable
+            activities={pendingActivities}
+            onApprove={handleApprove}
+            onDisapprove={handleDisapprove}
+            onApproveAll={handleApproveAll}
+            onDisapproveAll={handleDisapproveAll}
+          />
+        </div>
+
+        {/* Settings Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <LegacyDateSetting />
+          
+          <div className="bg-card p-6 rounded-lg space-y-4">
+            <div className="flex items-center gap-3">
+              <Settings className="w-5 h-5 text-primary" />
+              <h2 className="text-xl font-semibold">Advanced Admin Panel</h2>
+            </div>
+            <p className="text-muted-foreground">
+              Access the full Django admin interface for advanced configuration and database management.
+            </p>
+            <a
+              href="http://localhost:8000/admin"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block bg-primary text-primary-foreground py-2 px-4 rounded-lg hover:bg-primary/90 transition-colors"
+            >
+              Open Admin Panel
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   );
