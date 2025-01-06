@@ -4,13 +4,15 @@ import { Search as SearchIcon, User, Calendar, Award } from 'lucide-react';
 import SearchForm from '../components/search/SearchForm';
 import ActivityTable from '../components/search/ActivityTable';
 import { getMembersList, getMemberActivities } from '../services/api/members.service';
+import { getSetting } from '../services/api/settings.service';
 import { Member } from '../types/member';
 import { Activity } from '../types/activity';
 
 const Search = () => {
   const [searchParams] = useSearchParams();
   const [member, setMember] = useState<Member | null>(null);
-  const [activities, setActivities] = useState<Activity[]>([]);
+  const [currentActivities, setCurrentActivities] = useState<Activity[]>([]);
+  const [legacyActivities, setLegacyActivities] = useState<Activity[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -18,19 +20,38 @@ const Search = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const members = await getMembersList();
+      const [members, activities, legacyDate] = await Promise.all([
+        getMembersList(),
+        getMemberActivities(studienr),
+        getSetting('legacy_date')
+      ]);
+
       const member = members.find(m => m.studynr === studienr);
       if (!member) {
         throw new Error('Member not found');
       }
+
+      const legacyDateObj = new Date(legacyDate);
+      const current = [];
+      const legacy = [];
+
+      // Split activities based on legacy date
+      for (const activity of activities) {
+        if (new Date(activity.date) >= legacyDateObj) {
+          current.push(activity);
+        } else {
+          legacy.push(activity);
+        }
+      }
       
-      const activities = await getMemberActivities(studienr);
       setMember(member);
-      setActivities(activities);
+      setCurrentActivities(current);
+      setLegacyActivities(legacy);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Search failed');
       setMember(null);
-      setActivities([]);
+      setCurrentActivities([]);
+      setLegacyActivities([]);
     } finally {
       setIsLoading(false);
     }
@@ -53,10 +74,8 @@ const Search = () => {
   };
 
   const getLatestActivity = () => {
-    if (!activities.length) return null;
-    return activities.reduce((latest, current) => 
-      new Date(current.date) > new Date(latest.date) ? current : latest
-    );
+    if (!currentActivities.length) return null;
+    return currentActivities[0]; // Activities are already sorted by date
   };
 
   const latestActivity = getLatestActivity();
@@ -111,7 +130,7 @@ const Search = () => {
                   <p className="text-foreground/70">Total Points</p>
                 </div>
                 <p className="text-sm text-foreground/70">
-                  From {activities.length} activities
+                  From {currentActivities.length + legacyActivities.length} activities
                 </p>
               </div>
 
@@ -131,11 +150,19 @@ const Search = () => {
               )}
             </div>
 
-            {/* Activities Table */}
+            {/* Current Activities Table */}
             <div className="bg-card p-6 rounded-lg">
               <ActivityTable 
-                activities={activities}
-                title="Activity History"
+                activities={currentActivities}
+                title="Current Points"
+              />
+            </div>
+
+            {/* Legacy Activities Table */}
+            <div className="bg-card p-6 rounded-lg">
+              <ActivityTable 
+                activities={legacyActivities}
+                title="Legacy Points"
               />
             </div>
           </div>
