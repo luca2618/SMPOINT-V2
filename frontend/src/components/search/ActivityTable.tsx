@@ -9,11 +9,19 @@ interface ActivityTableProps {
 const ActivityTable: React.FC<ActivityTableProps> = ({ activities, title }) => {
   if (!activities?.length) {
     return (
-      <div className="text-muted text-center py-4">
+      <div className="text-foreground/70 text-center py-8">
         No activities found
       </div>
     );
   }
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('da-DK', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
 
   return (
     <div className="space-y-4">
@@ -21,26 +29,32 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ activities, title }) => {
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="bg-card">
-              <th className="px-4 py-2 text-left">ID</th>
-              <th className="px-4 py-2 text-left">Activity</th>
-              <th className="px-4 py-2 text-left">Points</th>
-              <th className="px-4 py-2 text-left">Comment</th>
-              <th className="px-4 py-2 text-left">Date</th>
-              <th className="px-4 py-2 text-left">Status</th>
+            <tr className="border-b border-foreground/20">
+              <th className="px-6 py-3 text-left text-sm font-semibold">Activity</th>
+              <th className="px-6 py-3 text-left text-sm font-semibold">Points</th>
+              <th className="px-6 py-3 text-left text-sm font-semibold">Comment</th>
+              <th className="px-6 py-3 text-left text-sm font-semibold">Date</th>
+              <th className="px-6 py-3 text-left text-sm font-semibold">Status</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-muted/20">
+          <tbody className="divide-y divide-foreground/20">
             {activities.map((activity) => (
-              <tr key={activity.id} className="hover:bg-card/50">
-                <td className="px-4 py-2">{activity.id}</td>
-                <td className="px-4 py-2">{activity.activity}</td>
-                <td className="px-4 py-2">{activity.points}</td>
-                <td className="px-4 py-2">{activity.comment}</td>
-                <td className="px-4 py-2">{activity.date}</td>
-                <td className="px-4 py-2">
-                  <span className={`px-2 py-1 rounded-full text-sm ${
-                    activity.approved ? 'bg-green-500/20 text-green-500' : 'bg-yellow-500/20 text-yellow-500'
+              <tr key={activity.id} className="hover:bg-foreground/5 transition-colors">
+                <td className="px-6 py-4 font-medium">{activity.activity}</td>
+                <td className="px-6 py-4">
+                  <span className="inline-flex items-center justify-center px-2 py-1 rounded-full bg-primary/10 text-primary font-medium">
+                    +{activity.points}
+                  </span>
+                </td>
+                <td className="px-6 py-4 text-foreground/70 max-w-xs truncate" title={activity.comment}>
+                  {activity.comment || '-'}
+                </td>
+                <td className="px-6 py-4 text-foreground/70">{formatDate(activity.date)}</td>
+                <td className="px-6 py-4">
+                  <span className={`px-2 py-1 rounded-full text-sm font-medium ${
+                    activity.approved 
+                      ? 'bg-green-500/20 text-green-500' 
+                      : 'bg-yellow-500/20 text-yellow-500'
                   }`}>
                     {activity.approved ? 'Approved' : 'Pending'}
                   </span>
