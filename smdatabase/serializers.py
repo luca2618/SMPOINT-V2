@@ -1,6 +1,6 @@
 # serializers.py
 from rest_framework import serializers
-from .models import Member, Activity, ActivityType
+from .models import Member, Activity, ActivityType, Setting
 
 class MemberSerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,3 +16,8 @@ class ActivityTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ActivityType
         fields = ['id', 'activity', 'points', 'description']
+
+class SettingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Setting
+        fields = ['setting_key', 'setting_value']

@@ -66,4 +66,4 @@ class Setting(models.Model):
     setting_value = models.CharField(max_length=255)
 
     def __str__(self):
-        return self.setting_key
+        return self.setting_key+" is set to "+self.setting_value

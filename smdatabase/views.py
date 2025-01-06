@@ -6,13 +6,27 @@ from rest_framework.exceptions import NotFound
 from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.http import require_POST
 from rest_framework import viewsets
-from .models import Member, Activity, ActivityType
-from .serializers import MemberSerializer, ActivitySerializer, ActivityTypeSerializer
+from .models import Member, Activity, ActivityType, Setting
+from .serializers import MemberSerializer, ActivitySerializer, ActivityTypeSerializer, SettingSerializer
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 
-
+class SettingViewSet(viewsets.ModelViewSet):
+    queryset = Setting.objects.all()
+    serializer_class = SettingSerializer
+    permission_classes = [IsAuthenticated]
+    def get_permissions(self):
+        """
+        Override get_permissions to use different permissions based on the HTTP method.
+        """
+        if self.action in ['list', 'retrieve']:
+            # Allow any user (unauthenticated users) to access GET requests
+            permission_classes = [AllowAny]
+        else:
+            # Require authentication for POST, PUT, DELETE
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
 
 class ActivityTypeViewSet(viewsets.ModelViewSet):
     queryset = ActivityType.objects.all()
