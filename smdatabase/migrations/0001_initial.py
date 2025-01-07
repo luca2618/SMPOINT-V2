@@ -2,7 +2,21 @@
 
 import django.db.models.deletion
 from django.db import migrations, models
+from django.contrib.auth.models import User
 
+def add_default_setting(apps, schema_editor):
+    Setting = apps.get_model('smdatabase', 'Setting')
+    Setting.objects.update_or_create(
+        setting_key='legacy_date',
+        defaults={'setting_value': '2022-01-01'}
+    )
+def add_default_admin(apps, schema_editor):
+    User = apps.get_model('auth', 'User')
+    User.objects.create_superuser(
+        username='admin',
+        email='admin@example.com',
+        password='smkid'
+    )
 
 class Migration(migrations.Migration):
 
@@ -59,4 +73,6 @@ class Migration(migrations.Migration):
                 ('studynr', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='smdatabase.member')),
             ],
         ),
+        migrations.RunPython(add_default_setting),
+        migrations.RunPython(add_default_admin),
     ]
