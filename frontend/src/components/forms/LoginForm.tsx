@@ -3,12 +3,14 @@ import { useAuth } from '../../hooks/useAuth';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { AlertCircle } from 'lucide-react';
 import { AuthService } from '../../services/auth.service';
+import { useNavigate } from 'react-router-dom';
 
 const LoginForm: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const { login, isLoading, error } = useAuth();
   const { setTokens } = useAuthContext();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,6 +19,7 @@ const LoginForm: React.FC = () => {
       const tokens = AuthService.getStoredTokens();
       if (tokens) {
         setTokens(tokens);
+        navigate('/');
       }
     }
   };
