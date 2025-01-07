@@ -1,12 +1,17 @@
 import React from 'react';
 import { Activity } from '../../types/activity';
+import { X } from 'lucide-react';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 interface ActivityTableProps {
   activities: Activity[];
   title: string;
+  onDelete?: (id: number) => Promise<void>;
 }
 
-const ActivityTable: React.FC<ActivityTableProps> = ({ activities, title }) => {
+const ActivityTable: React.FC<ActivityTableProps> = ({ activities, title, onDelete }) => {
+  const { isAuthenticated } = useAuthContext();
+
   if (!activities?.length) {
     return (
       <div className="text-foreground/70 text-center py-8">
@@ -35,6 +40,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ activities, title }) => {
               <th className="px-6 py-3 text-left text-sm font-semibold">Comment</th>
               <th className="px-6 py-3 text-left text-sm font-semibold">Date</th>
               <th className="px-6 py-3 text-left text-sm font-semibold">Status</th>
+              {isAuthenticated && <th className="px-6 py-3 text-left text-sm font-semibold">Actions</th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-foreground/20">
@@ -59,6 +65,17 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ activities, title }) => {
                     {activity.approved ? 'Approved' : 'Pending'}
                   </span>
                 </td>
+                {isAuthenticated && (
+                  <td className="px-6 py-4">
+                    <button
+                      onClick={() => onDelete?.(activity.id)}
+                      className="p-1 text-red-500 hover:bg-red-500/20 rounded transition-colors"
+                      title="Delete activity"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

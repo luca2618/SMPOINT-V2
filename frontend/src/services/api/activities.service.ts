@@ -8,6 +8,10 @@ export const addActivity = async (data: any): Promise<void> => {
   await httpClient.post('/api/activities/', data);
 };
 
+export const deleteActivity = async (id: number): Promise<void> => {
+  await httpClient.delete(`/api/activities/${id}/`);
+};
+
 export const getPendingActivities = async (): Promise<Activity[]> => {
   // Fetch all required data in parallel
   const [activities, members, activityTypes] = await Promise.all([

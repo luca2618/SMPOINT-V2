@@ -4,6 +4,7 @@ import { Search as SearchIcon, User, Calendar, Award } from 'lucide-react';
 import SearchForm from '../components/search/SearchForm';
 import ActivityTable from '../components/search/ActivityTable';
 import { getMembersList, getMemberActivities } from '../services/api/members.service';
+import { deleteActivity } from '../services/api/activities.service';
 import { getSetting } from '../services/api/settings.service';
 import { Member } from '../types/member';
 import { Activity } from '../types/activity';
@@ -54,6 +55,18 @@ const Search = () => {
       setLegacyActivities([]);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    try {
+      await deleteActivity(id);
+      // Refresh the activities after deletion
+      if (member) {
+        handleSearch(member.studynr);
+      }
+    } catch (err) {
+      setError('Failed to delete activity');
     }
   };
 
@@ -155,6 +168,7 @@ const Search = () => {
               <ActivityTable 
                 activities={currentActivities}
                 title="Current Points"
+                onDelete={handleDelete}
               />
             </div>
 
@@ -163,6 +177,7 @@ const Search = () => {
               <ActivityTable 
                 activities={legacyActivities}
                 title="Legacy Points"
+                onDelete={handleDelete}
               />
             </div>
           </div>

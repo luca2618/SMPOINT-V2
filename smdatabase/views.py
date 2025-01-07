@@ -67,15 +67,16 @@ class ActivityViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         activity = serializer.save(approved=self.request.user.is_authenticated)
-        activity.member.update_points()
+        activity.studynr.update_points()
     
     def perform_update(self, serializer):
         activity = serializer.save()
-        activity.member.update_points()
+        activity.studynr.update_points()
 
     def perform_destroy(self, instance):
-        instance.member.update_points()
+        member = instance.studynr
         instance.delete()
+        member.update_points()
 
     def get_permissions(self):
         """
