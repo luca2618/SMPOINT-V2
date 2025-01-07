@@ -66,13 +66,16 @@ class ActivityViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-        # Check if the user is authenticated
-        if self.request.user.is_authenticated:
-            # If the user is authenticated, set approved to True
-            serializer.save(approved=True)
-        else:
-            # Otherwise, set approved to False
-            serializer.save(approved=False)
+        activity = serializer.save(approved=self.request.user.is_authenticated)
+        activity.member.update_points()
+    
+    def perform_update(self, serializer):
+        activity = serializer.save()
+        activity.member.update_points()
+
+    def perform_destroy(self, instance):
+        instance.member.update_points()
+        instance.delete()
 
     def get_permissions(self):
         """
@@ -111,30 +114,30 @@ class ActivityViewSet(viewsets.ModelViewSet):
         Activity.objects.filter(approved=False).delete()
         return Response({'status': 'all unapproved activities deleted'}, status=status.HTTP_200_OK)
 
-# Require login and admin privileges
-@login_required
-@require_POST  # Ensures that only POST requests are allowed
-def add_activity(request):
-    if not request.user.is_staff:  # Check if the user is an admin
-        return JsonResponse({"error": "You do not have permission to add activities."}, status=403)
+# # Require login and admin privileges
+# @login_required
+# @require_POST  # Ensures that only POST requests are allowed
+# def add_activity(request):
+#     if not request.user.is_staff:  # Check if the user is an admin
+#         return JsonResponse({"error": "You do not have permission to add activities."}, status=403)
 
-    studynr = request.POST.get('studynr')
-    aktivitet = request.POST.get('activity')
-    points = float(request.POST.get('points'))
-    comment = request.POST.get('comment', '')
-    date = request.POST.get('date')
+#     studynr = request.POST.get('studynr')
+#     aktivitet = request.POST.get('activity')
+#     points = float(request.POST.get('points'))
+#     comment = request.POST.get('comment', '')
+#     date = request.POST.get('date')
 
-    member = get_object_or_404(Member, studynr=studynr)
-    member.add_activity(aktivitet, points, comment, date)
+#     member = get_object_or_404(Member, studynr=studynr)
+#     member.add_activity(aktivitet, points, comment, date)
     
-    return redirect('member_detail', studynr=studynr)
-@login_required(login_url="/admin/login/")
-def update_points(request, studynr):
-    if not request.user.is_staff:  # Check if the user is an admin
-        return JsonResponse({"error": "You do not have permission to add activities."}, status=403)
-    member = get_object_or_404(Member, studynr=studynr)
-    member.update_points()
-    return JsonResponse({"success": True, "points": member.points})
+#     return redirect('member_detail', studynr=studynr)
+# @login_required(login_url="/admin/login/")
+# def update_points(request, studynr):
+#     if not request.user.is_staff:  # Check if the user is an admin
+#         return JsonResponse({"error": "You do not have permission to add activities."}, status=403)
+#     member = get_object_or_404(Member, studynr=studynr)
+#     member.update_points()
+#     return JsonResponse({"success": True, "points": member.points})
 
 
 import json
